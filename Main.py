@@ -1,13 +1,19 @@
 from tkinter import * 
+from Riddles import Riddle
 
 VERSION = 0.1
-DEF_NUM_QUESTIONS = 10
+DEF_NUM_QUESTIONS = 3
 DEFAULT_TRIES = 3
 
 #global variables for the score and the tries for the duration of the game
 global_score = 0
 global_q_counter = 0
 global_tries = DEFAULT_TRIES
+
+begun = False
+
+# keep track of current question
+current_q = Riddle(global_q_counter)
 
 
 def send_output(text, entry):
@@ -27,6 +33,7 @@ def clear_textbox(text):
 	text.delete('1.0', END)
 	text.config(state=DISABLED)
 
+
 def give_strike(score_w):
 	global global_score
 	global global_tries
@@ -43,12 +50,17 @@ def give_strike(score_w):
 
 	score_w.update()
 
-
 #should be whatever the intro sequence for the game is.  
 # edit this code accordingly.
 def intro_sequence(text):
-	send_outputln(text, "Welcome to version " + str(VERSION) + " of our trivia game!  To simulate a wrong answer, type \"wrong\"")
+	send_outputln(text, "Welcome to version " + str(VERSION) + " of our trivia game!  Type \"begin\" to begin, or \"quit\" to quit")
 
+def load_next_question(master, score_w, text):
+	global global_q_counter
+	clear_textbox(text)
+	global_q_counter += 1 
+	current_q.changeRiddle(global_q_counter)
+	send_outputln(str(global_q_counter) + str(current_q.getRiddle()))
 
 # when the game ends or if the user gets a game over
 # call this method to reset all values to their defaults
@@ -56,10 +68,12 @@ def intro_sequence(text):
 def reset_everything(master, score_w, text):
 	global global_tries
 	global global_score
+	global global_q_counter
 
 	# reset the global score and tries to their default values
 	global_tries = DEFAULT_TRIES
 	global_score = 0
+	global_q_counter = 0
 
 	# clear the textbox of any previous feedback 
 	clear_textbox(text)
@@ -74,15 +88,22 @@ def reset_everything(master, score_w, text):
 
 
 def check_input(master, score_w, text, input):
-	global global_tries 
+	global global_tries
+	global current_q
+	global begun
 
 	if ( input == "quit" ):
 		master.destroy()
+	elif ( input == "begin" and not begun ):
+		clear_textbox(text)
+		send_outputln(text, str(global_q_counter+1) + ". " + str(current_q.getRiddle()))
+		begun = True
+
 	elif ( global_tries == 0 and input == "start"):
 		reset_everything(master, score_w, text)
-	elif ( input == "wrong" ):
+	elif ( not current_q.getSolution(input) ):
 		give_strike(score_w)
-	elif ( input == "right" ):
+	elif (current_q.getSolution(input) and global_q_counter < DEF_NUM_QUESTIONS ):
 		load_next_question(master, score_w, text)
 
 
