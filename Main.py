@@ -103,9 +103,9 @@ def check_input(master, score_w, text, input):
 
 	elif ( global_tries == 0 and input == "start"):
 		reset_everything(master, score_w, text)
-	elif ( not current_q.getSolution(input) ):
+	elif ( not current_q.trySolution(input) ):
 		give_strike(score_w)
-	elif (current_q.getSolution(input) and global_q_counter < DEF_NUM_QUESTIONS ):
+	elif (current_q.trySolution(input) and global_q_counter < DEF_NUM_QUESTIONS ):
 		load_next_question(master, score_w, text)
 
 
