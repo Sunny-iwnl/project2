@@ -1,5 +1,5 @@
 from tkinter import * 
-from Riddles import Riddle
+from Questions import Questions
 
 VERSION = 0.1
 DEF_NUM_QUESTIONS = 3
@@ -13,7 +13,9 @@ global_tries = DEFAULT_TRIES
 begun = False
 
 # keep track of current question
-current_q = Riddle(global_q_counter)
+current_q = Questions()
+current_q.getSpecificQuestion(1)
+
 
 
 def send_output(text, entry):
@@ -59,8 +61,8 @@ def load_next_question(master, score_w, text):
 	global global_q_counter
 	clear_textbox(text)
 	global_q_counter += 1 
-	current_q.changeRiddle(global_q_counter)
-	send_outputln(str(global_q_counter) + str(current_q.getRiddle()))
+	current_q.getSpecificQuestion(global_q_counter)
+	send_outputln(str(global_q_counter) + str(current_q.getQuestion()))
 
 # when the game ends or if the user gets a game over
 # call this method to reset all values to their defaults
@@ -96,7 +98,7 @@ def check_input(master, score_w, text, input):
 		master.destroy()
 	elif ( input == "begin" and not begun ):
 		clear_textbox(text)
-		send_outputln(text, str(global_q_counter+1) + ". " + str(current_q.getRiddle()))
+		send_outputln(text, str(global_q_counter+1) + ". " + str(current_q.getQuestion()))
 		begun = True
 
 	elif ( global_tries == 0 and input == "start"):

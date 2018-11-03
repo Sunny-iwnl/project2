@@ -34,7 +34,7 @@ class Questions:
 			next(file)
 		rowz = next(reader)
 		self.question = rowz[0]
-		self.question = fixNewLine(self.question)
+		self.question = self.fixNewLine(self.question)
 		self.solution = rowz[1]
 		file.close()
 		
@@ -46,13 +46,14 @@ class Questions:
 			next(file)
 		rowz = next(reader)
 		self.question = rowz[0]
-		self.question = fixNewLine(self.question)
+		self.question = self.fixNewLine(self.question)
 		self.solution = rowz[1]
 		file.close()
 		
 	def fixNewLine(self, input):
 		y = input.split("\\n")
-		for x in range(y):
+		out = ""
+		for x in y:
 			out += x
 			out += "\n"
 		return out
