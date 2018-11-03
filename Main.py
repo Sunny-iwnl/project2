@@ -2,7 +2,7 @@ from tkinter import *
 from Questions import Questions
 
 VERSION = 0.1
-DEF_NUM_QUESTIONS = 2
+DEF_NUM_QUESTIONS = 10
 DEFAULT_TRIES = 3
 
 #global variables for the score and the tries for the duration of the game
