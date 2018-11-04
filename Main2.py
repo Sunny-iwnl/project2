@@ -4,7 +4,7 @@ from Questions import Questions
 '''-----------------Global Variables ------------------'''
 VERSION = 0.1
 ACTIVE_SCORE = 0
-DEF_NUM_QUESTIONS = 7
+DEF_NUM_QUESTIONS = 9
 DEFAULT_TRIES = 3
 ACTIVE_TRIES = DEFAULT_TRIES
 ACTIVE_QUESTION = 0
@@ -148,6 +148,7 @@ def check_input(input):
 	global PLAYERS
 	global NUM_PLAYERS
 	global ASKING_NUM_PLAYERS
+	global ACTIVE_SCORE
 
 	if ( input == "quit" ):
 		MASTER.destroy()
@@ -174,15 +175,16 @@ def check_input(input):
 		# IN_GAME = True
 		# clear_textbox()
 		# load_next_question()
-	elif ( ACTIVE_TRIES == 0 and input == "start"):
+	elif ( (ACTIVE_TRIES == 0  or IN_GAME == FALSE) and input == "start"):
 		reset_everything()
 	elif ( not CURRENT_QUESTION.trySolution(input) and IN_GAME):
 		give_strike()
 	elif (CURRENT_QUESTION.trySolution(input) and ACTIVE_QUESTION < DEF_NUM_QUESTIONS and IN_GAME ):
 		load_next_question()
-	# elif ( win condition ):
-	# do win condition things
-
+	if (ACTIVE_SCORE == 70 ):
+		clear_textbox()
+		IN_GAME = False
+		send_outputln("Congrats, you won!  Type start to play again or quit to quit.")
 '''-----------------------------------'''
 
 # where the window is set up and such
