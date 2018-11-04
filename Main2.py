@@ -24,7 +24,7 @@ FEEDBACK_FIELD = Text(bg="black", foreground="lightgreen", highlightbackground="
 #create a frame to house the entry field and submit button
 INPUT_FRAME = Frame(MASTER, bg="lightgray")
 ENTRY_FIELD = Entry(text="", relief="groove", highlightbackground="lightgray")
-SUBMIT_BUTTON = Button(text="Submit", command=lambda: [check_input(ENTRY_FIELD.get()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
+SUBMIT_BUTTON = Button(text="Submit", command=lambda: [check_input(ENTRY_FIELD.get().lower()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
 
 # label widget which keeps track of the global variables 
 SCORE_WIDGET = Label(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray")
@@ -193,7 +193,7 @@ def load_window():
 
 	# and the things to take place whenever the enter button is presssed.
 	# you can actually chain together function calls as seen below.
-	ENTRY_FIELD.bind("<Return>", lambda event: [check_input(ENTRY_FIELD.get()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
+	ENTRY_FIELD.bind("<Return>", lambda event: [check_input(ENTRY_FIELD.get().lower()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
 
 def main():
 
