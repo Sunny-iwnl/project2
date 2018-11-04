@@ -8,7 +8,9 @@ DEF_NUM_QUESTIONS = 9
 DEFAULT_TRIES = 3
 ACTIVE_TRIES = DEFAULT_TRIES
 ACTIVE_QUESTION = 0
+ACTIVE_PLAYER = 0
 ASKING_NUM_PLAYERS = FALSE
+ACTIVE_TURN = 0
 
 # instantiate the main game window
 MASTER = Tk()
@@ -81,7 +83,7 @@ def load_next_question():
 
 	send_outputln(str(ACTIVE_QUESTION+1) + ". " + str(CURRENT_QUESTION.getQuestion()))
 
-	SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
+	SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 	SCORE_WIDGET.update()
 
 def give_strike():
@@ -89,14 +91,16 @@ def give_strike():
 	global ACTIVE_TRIES
 	global IN_GAME
 	global SCORE_WIDGET
+	global ACTIVE_PLAYER
 
-	ACTIVE_TRIES -= 1
-	ACTIVE_SCORE -= 10
+	if IN_GAME:
+		ACTIVE_TRIES -= 1
+		ACTIVE_SCORE -= 10
 
 	if ( ACTIVE_TRIES > 1 ):
-		SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES))
+		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 	elif ( ACTIVE_TRIES == 1):
-		SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES))
+		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 		SCORE_WIDGET.config(fg="red")
 	elif ( ACTIVE_TRIES == 0 ):
 		SCORE_WIDGET.config(text="Game Over!  Type \"start\" to play again, or \"quit\" to quit.", fg="white", bg="red")
@@ -149,6 +153,9 @@ def check_input(input):
 	global NUM_PLAYERS
 	global ASKING_NUM_PLAYERS
 	global ACTIVE_SCORE
+	global ACTIVE_TRIES
+	global ACTIVE_PLAYER
+	global ACTIVE_TURN
 
 	if ( input == "quit" ):
 		MASTER.destroy()
@@ -157,13 +164,15 @@ def check_input(input):
 
 		for i in range(0, NUM_PLAYERS):
 			# slot 1 is their tries, slot 2 is their score, slot 3 is their current question
-			player_state = [0, 0, 0]
+			player_state = [0, DEFAULT_TRIES]
 			PLAYERS.append(player_state)
 			print(len(PLAYERS))
 
 		ASKING_NUM_PLAYERS = False
+		ACTIVE_PLAYER = 1
 		load_next_question()
 		IN_GAME = True
+		ACTIVE_TURN = 1
 
 	elif ( input == "begin" and not IN_GAME ):
 		clear_textbox()
@@ -179,12 +188,31 @@ def check_input(input):
 		reset_everything()
 	elif ( not CURRENT_QUESTION.trySolution(input) and IN_GAME):
 		give_strike()
+		PLAYERS[ACTIVE_PLAYER-1][0] = ACTIVE_SCORE
+		PLAYERS[ACTIVE_PLAYER-1][1] = ACTIVE_TRIES
+
+		ACTIVE_PLAYER += 1
+
+		if ( ACTIVE_PLAYER > NUM_PLAYERS ):
+			ACTIVE_PLAYER = 1
+
+		ACTIVE_SCORE = PLAYERS[ACTIVE_PLAYER-1][0]
+		ACTIVE_TRIES = PLAYERS[ACTIVE_PLAYER-1][1]
+
+		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
+		SCORE_WIDGET.update()
+
 	elif (CURRENT_QUESTION.trySolution(input) and ACTIVE_QUESTION < DEF_NUM_QUESTIONS and IN_GAME ):
 		load_next_question()
-	if (ACTIVE_SCORE == 70 ):
+
+		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
+		SCORE_WIDGET.update()
+
+
+	if ( ACTIVE_SCORE == 70 ):
 		clear_textbox()
 		IN_GAME = False
-		send_outputln("Congrats, you won!  Type start to play again or quit to quit.")
+		send_outputln("Player " + str(ACTIVE_PLAYER+1) + "won!  Type \"start\" to play again or quit to quit.")
 '''-----------------------------------'''
 
 # where the window is set up and such
