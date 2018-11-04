@@ -4,7 +4,7 @@ from Questions import Questions
 '''-----------------Global Variables ------------------'''
 VERSION = 0.1
 ACTIVE_SCORE = 0
-DEF_NUM_QUESTIONS = 10
+DEF_NUM_QUESTIONS = 7
 DEFAULT_TRIES = 3
 ACTIVE_TRIES = DEFAULT_TRIES
 ACTIVE_QUESTION = 0
@@ -73,8 +73,12 @@ def load_next_question():
 			ACTIVE_QUESTION += 1 
 		elif (ACTIVE_QUESTION == DEF_NUM_QUESTIONS):
 			ACTIVE_QUESTION = 0
+		
+	if (ACTIVE_QUESTION == DEF_NUM_QUESTIONS):
+		ACTIVE_QUESTION = 0
 
-	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)
+	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)	
+
 	send_outputln(str(ACTIVE_QUESTION+1) + ". " + str(CURRENT_QUESTION.getQuestion()))
 
 	SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
@@ -102,11 +106,12 @@ def give_strike():
 # when the game ends or if the user gets a game over
 # call this method to reset all values to their defaults
 # and throw the user back to the first part of the game
-def reset_everything(master, SCORE_WIDGET, text):
+def reset_everything():
 	global ACTIVE_TRIES
 	global ACTIVE_SCORE
 	global ACTIVE_QUESTION
 	global IN_GAME
+	global PLAYERS
 	global begun
 
 	IN_GAME = False
@@ -116,16 +121,23 @@ def reset_everything(master, SCORE_WIDGET, text):
 	ACTIVE_SCORE = 0
 	ACTIVE_QUESTION = 0
 
+	PLAYERS = []
+
 	# clear the textbox of any previous feedback 
 	clear_textbox()
 
-	# display starting text (this is how it will be for now until we get the actual game in)
-	# put whatever the intro sequence is here
 	intro_sequence()
 
 	#reset the text widget back to what it was at the beginning
 	SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 	SCORE_WIDGET.update()
+
+#should be whatever the intro sequence for the game is.  
+# edit this code accordingly.
+def intro_sequence():
+	global FEEDBACK_FIELD
+	clear_textbox()
+	send_outputln("Welcome to version " + str(VERSION) + " of our trivia game!  Type \"begin\" to begin, or \"quit\" to quit")
 
 def check_input(input):
 	global MASTER
@@ -163,7 +175,7 @@ def check_input(input):
 		# clear_textbox()
 		# load_next_question()
 	elif ( ACTIVE_TRIES == 0 and input == "start"):
-		reset_everything(MASTER, SCORE_WIDGET, text)
+		reset_everything()
 	elif ( not CURRENT_QUESTION.trySolution(input) and IN_GAME):
 		give_strike()
 	elif (CURRENT_QUESTION.trySolution(input) and ACTIVE_QUESTION < DEF_NUM_QUESTIONS and IN_GAME ):
@@ -193,7 +205,8 @@ def load_window():
 	#then pack the feedback field onto the window!
 	FEEDBACK_FIELD.pack(side="top", fill="both", expand=True)
 
-	send_outputln("Start Page")
+
+	intro_sequence()
 
 	# and the things to take place whenever the enter button is presssed.
 	# you can actually chain together function calls as seen below.
