@@ -23,6 +23,8 @@ class Questions:
 		
 	def getQuestion(self):
 		return self.question
+	def getPointValue(self):
+		return self.pointvalue
 
 	def getRandomQuestion(self):
 		file = open(GLOBAL_PATH + "/qanda.csv")
