@@ -13,7 +13,7 @@ class Player():
         if correct:
             self.score += points
         else:
-            self.score -= randint(100,1000)
+            self.score -= 5
 
         self.tries += 1
        
