@@ -68,7 +68,11 @@ def load_next_question():
 	clear_textbox()
 	if IN_GAME:
 		ACTIVE_SCORE += 10
-		ACTIVE_QUESTION += 1 
+
+		if (ACTIVE_QUESTION < DEF_NUM_QUESTIONS):
+			ACTIVE_QUESTION += 1 
+		elif (ACTIVE_QUESTION == DEF_NUM_QUESTIONS):
+			ACTIVE_QUESTION = 0
 
 	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)
 	send_outputln(str(ACTIVE_QUESTION+1) + ". " + str(CURRENT_QUESTION.getQuestion()))
