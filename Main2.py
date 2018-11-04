@@ -187,26 +187,16 @@ def check_input(input):
 	elif ( (ACTIVE_TRIES == 0  or IN_GAME == FALSE) and input == "start"):
 		reset_everything()
 	elif ( not CURRENT_QUESTION.trySolution(input) and IN_GAME):
+		give_strike()
 
-		if NUM_PLAYERS == 1:
-			give_strike()
-
-		load_next_question()
-
+		if ( ACTIVE_TRIES > 0 ):
+			load_next_question()
+		
 	elif (CURRENT_QUESTION.trySolution(input) and ACTIVE_QUESTION < DEF_NUM_QUESTIONS and IN_GAME ):
 		load_next_question()
 
 		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 		SCORE_WIDGET.update()
-
-
-	if ( ACTIVE_SCORE == 70):
-		clear_textbox()
-		IN_GAME = False
-		send_outputln("You won!  Type \"start\" to play again or quit to quit.")
-'''-----------------------------------'''
-
-# where the window is set up and such
 def load_window():
 	global INPUT_FRAME
 	global SCORE_WIDGET

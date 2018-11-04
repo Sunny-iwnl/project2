@@ -42,6 +42,7 @@ def give_strike(score_w):
 	global begun
 
 	global_tries -= 1
+	global_score -= 10
 
 	if ( global_tries > 1 ):
 		score_w.config(text="Score: " + str(global_score) + ", Tries Remaining: " + str(global_tries))
@@ -65,12 +66,23 @@ def load_next_question(master, score_w, text):
 	clear_textbox(text)
 
 	global_score += 10
-	global_q_counter += 1 
+	global_q_counter += 1
 	current_q.getSpecificQuestion(global_q_counter)
 	send_outputln(text, str(global_q_counter+1) + ". " + str(current_q.getQuestion()))
-
+	
 	score_w.config(text="Score: " + str(global_score) + ", Tries Remaining: " + str(global_tries), bg="lightgray", fg="black")
 	score_w.update()
+
+	defined_winner(text)
+
+def defined_winner(feedback_field):
+        global global_score
+
+        if global_score == 70:
+                clear_textbox(feedback_field)
+                send_outputln(feedback_field, "Congradulations! You have won the game!")
+                
+                
 
 # when the game ends or if the user gets a game over
 # call this method to reset all values to their defaults
@@ -134,7 +146,7 @@ def main():
 	#create a frame to house the entry field and submit button
 	input_frame = Frame(master, bg="lightgray")
 	entry_field = Entry(text="", relief="groove", highlightbackground="lightgray")
-	submit_button = Button(text="Submit", command=lambda: [send_outputln(feedback_field, str(entry_field.get())), check_input(master, score_w, feedback_field, entry_field.get()), entry_field.delete(0, END), entry_field.focus()])
+	submit_button = Button(text="Submit", command=lambda: [check_input(master, score_w, feedback_field, entry_field.get()), entry_field.delete(0, END), entry_field.focus()])
 
 	# label widget which keeps track of the global variables 
 	score_w = Label(text="Score: " + str(global_score) + ", Tries Remaining: " + str(global_tries), bg="lightgray")
@@ -155,8 +167,8 @@ def main():
 
 	# and the things to take place whenever the enter button is presssed.
 	# you can actually chain together function calls as seen below.
-	entry_field .bind("<Return>", lambda event: [send_outputln(feedback_field, entry_field.get().strip()), check_input(master, score_w, feedback_field, entry_field.get()), entry_field.delete(0, END), entry_field.focus()])
-
+	entry_field .bind("<Return>", lambda event: [check_input(master, score_w, feedback_field, entry_field.get()), entry_field.delete(0, END), entry_field.focus()])
+        
 	master.mainloop()
 
 main()
