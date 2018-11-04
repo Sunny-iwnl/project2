@@ -24,7 +24,7 @@ FEEDBACK_FIELD = Text(bg="black", foreground="lightgreen", highlightbackground="
 #create a frame to house the entry field and submit button
 INPUT_FRAME = Frame(MASTER, bg="lightgray")
 ENTRY_FIELD = Entry(text="", relief="groove", highlightbackground="lightgray")
-SUBMIT_BUTTON = Button(text="Submit", command=lambda: [send_outputln(FEEDBACK_FIELD, str(ENTRY_FIELD.get())), check_input(ENTRY_FIELD.get()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
+SUBMIT_BUTTON = Button(text="Submit", command=lambda: [check_input(ENTRY_FIELD.get()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
 
 # label widget which keeps track of the global variables 
 SCORE_WIDGET = Label(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray")
@@ -63,13 +63,15 @@ def clear_textbox():
 def load_next_question():
 	global ACTIVE_SCORE
 	global ACTIVE_QUESTION
+	global IN_GAME
 
 	clear_textbox()
+	if IN_GAME:
+		ACTIVE_SCORE += 10
+		ACTIVE_QUESTION += 1 
 
-	ACTIVE_SCORE += 10
-	ACTIVE_QUESTION += 1 
-	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION)
-	send_outputln(str(ACTIVE_QUESTION) + ". " + str(CURRENT_QUESTION.getQuestion()))
+	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)
+	send_outputln(str(ACTIVE_QUESTION+1) + ". " + str(CURRENT_QUESTION.getQuestion()))
 
 	SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 	SCORE_WIDGET.update()
@@ -81,6 +83,7 @@ def give_strike():
 	global SCORE_WIDGET
 
 	ACTIVE_TRIES -= 1
+	ACTIVE_SCORE -= 10
 
 	if ( ACTIVE_TRIES > 1 ):
 		SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES))
@@ -99,9 +102,10 @@ def reset_everything(master, SCORE_WIDGET, text):
 	global ACTIVE_TRIES
 	global ACTIVE_SCORE
 	global ACTIVE_QUESTION
+	global IN_GAME
 	global begun
 
-	begun = False
+	IN_GAME = False
 
 	# reset the global score and tries to their default values
 	ACTIVE_TRIES = DEFAULT_TRIES
@@ -109,11 +113,11 @@ def reset_everything(master, SCORE_WIDGET, text):
 	ACTIVE_QUESTION = 0
 
 	# clear the textbox of any previous feedback 
-	clear_textbox(text)
+	clear_textbox()
 
 	# display starting text (this is how it will be for now until we get the actual game in)
 	# put whatever the intro sequence is here
-	intro_sequence(text)
+	intro_sequence()
 
 	#reset the text widget back to what it was at the beginning
 	SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
@@ -127,6 +131,7 @@ def check_input(input):
 	global IN_GAME
 	global PLAYERS
 	global NUM_PLAYERS
+	global ASKING_NUM_PLAYERS
 
 	if ( input == "quit" ):
 		MASTER.destroy()
@@ -136,7 +141,12 @@ def check_input(input):
 		for i in range(0, NUM_PLAYERS):
 			# slot 1 is their tries, slot 2 is their score, slot 3 is their current question
 			player_state = [0, 0, 0]
+			PLAYERS.append(player_state)
+			print(len(PLAYERS))
 
+		ASKING_NUM_PLAYERS = False
+		load_next_question()
+		IN_GAME = True
 
 	elif ( input == "begin" and not IN_GAME ):
 		clear_textbox()
@@ -183,7 +193,7 @@ def load_window():
 
 	# and the things to take place whenever the enter button is presssed.
 	# you can actually chain together function calls as seen below.
-	ENTRY_FIELD.bind("<Return>", lambda event: [send_outputln(ENTRY_FIELD.get().strip()), check_input(ENTRY_FIELD.get()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
+	ENTRY_FIELD.bind("<Return>", lambda event: [check_input(ENTRY_FIELD.get()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
 
 def main():
 
