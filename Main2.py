@@ -33,6 +33,7 @@ SCORE_WIDGET = Label(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " 
 
 # go ahead and 
 CURRENT_QUESTION = Questions()
+currentpointvalue=Questions.getPointValue()
 
 PLAYERS = []
 NUM_PLAYERS = 0
@@ -65,11 +66,12 @@ def clear_textbox():
 def load_next_question():
 	global ACTIVE_SCORE
 	global ACTIVE_QUESTION
+	
 	global IN_GAME
 
 	clear_textbox()
 	if IN_GAME:
-		ACTIVE_SCORE += 10
+		ACTIVE_SCORE += CURRENT_QUESTION.getPointValue()
 
 		if (ACTIVE_QUESTION < DEF_NUM_QUESTIONS):
 			ACTIVE_QUESTION += 1 
@@ -79,7 +81,8 @@ def load_next_question():
 	if (ACTIVE_QUESTION == DEF_NUM_QUESTIONS):
 		ACTIVE_QUESTION = 0
 
-	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)	
+	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)
+	
 
 	send_outputln(str(ACTIVE_QUESTION+1) + ". " + str(CURRENT_QUESTION.getQuestion()))
 
@@ -95,7 +98,7 @@ def give_strike():
 
 	if IN_GAME:
 		ACTIVE_TRIES -= 1
-		ACTIVE_SCORE -= 10
+		ACTIVE_SCORE -= 5
 
 	if ( ACTIVE_TRIES > 1 ):
 		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
