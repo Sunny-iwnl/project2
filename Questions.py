@@ -10,6 +10,7 @@ class Questions:
 	
 		self.question = ""
 		self.solution = ""
+		self.pointvalue=0
 		file = open(GLOBAL_PATH + "/qanda.csv")
 		reader = csv.reader(file)
 		row_count = sum(1 for row in reader)
@@ -22,6 +23,8 @@ class Questions:
 		
 	def getQuestion(self):
 		return self.question
+	def getPointValue(self):
+		return self.pointvalue
 
 	def getRandomQuestion(self):
 		file = open(GLOBAL_PATH + "/qanda.csv")
@@ -48,6 +51,7 @@ class Questions:
 		self.question = rowz[0]
 		self.question = self.fixNewLine(self.question)
 		self.solution = rowz[1]
+		self.pointvalue=int(rowz[2])
 		file.close()
 		
 	def fixNewLine(self, input):
