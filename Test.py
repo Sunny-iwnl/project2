@@ -1,6 +1,7 @@
 from tkinter import *
 from Questions import Questions
 from PIL import ImageTk, Image
+import sys
 import os.path
 
 INSTALL_DIR = os.getcwd() + "/"
@@ -20,7 +21,12 @@ class Application:
         ''' ------- Window Element Variables -------- '''
 
         # prepare the text field for the feedback to be presented to the user
-        self.feedback_field = Text(bg="black", foreground="#33FF00", highlightbackground="black", font=("Lucida Console", 14))
+        self.feedback_field = Text(bg="black", foreground="#33FF00", highlightbackground="black")
+
+        if ( sys.platform == 'darwin' ):
+            self.feedback_field.config(font=("Andale Mono", 14))
+        elif ( sys.platform == 'win32' ):
+            self.feedback_field.config(font=("Lucida Console", 14))
 
         #create a frame to house the entry field and submit button
         self.input_frame = Frame(master, bg="lightgray")
