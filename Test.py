@@ -1,8 +1,10 @@
 from tkinter import *
 from Questions import Questions
+from player import Player
 from PIL import ImageTk, Image
 import sys
 import os.path
+
 
 INSTALL_DIR = os.getcwd() + "/"
 
@@ -10,8 +12,9 @@ class Application:
 
     def __init__(self, master):
         self.master = master
-        self.VERSION = 0.1
-        self.PROGRAM_TITLE = "Trivia Game v" + str(self.VERSION)
+        self.VERSION = 1.0
+        self.PROGRAM_TITLE = "Hack Your Boss: Trivia Edition, v" + str(self.VERSION)
+        self.DEFAULT_QUESTIONS = 9
 
         # instantiate the main game window
         self.master.geometry("800x600")
@@ -23,6 +26,7 @@ class Application:
         # prepare the text field for the feedback to be presented to the user
         self.feedback_field = Text(bg="black", foreground="#33FF00", highlightbackground="black")
 
+        # load the fonts on macOS and Windows most similar to the font the scene pictures use.
         if ( sys.platform == 'darwin' ):
             self.feedback_field.config(font=("Andale Mono", 14))
         elif ( sys.platform == 'win32' ):
@@ -44,7 +48,9 @@ class Application:
         self.in_game = False
         self.asking_num_players = False
         self.num_players = 0
+        self.active_player = Player("Player 1", 1)
         self.curr_question = Questions()
+        self.q_counter = 0
 
         ''' ----------------------------------- '''
 
@@ -58,7 +64,7 @@ class Application:
         self.unload_console()
 
     def program(self):
-        self.boot_os_sequence()
+        #self.boot_os_sequence()
         self.title_screen()
 
     def update_scene(self, milsec, filename):
@@ -73,13 +79,19 @@ class Application:
     def unload_scene_widget(self):
         self.panel.place_forget()
 
+    def update_score_widget(self):
+        self.score_widget.config(text="Score: " + str(self.active_player.getScore()) + ", Tries Remaining: " + str(self.active_player.getTries()))
+
     def reset_states(self):
         self.input = ""
         self.in_game = False
         self.asking_num_players = False
         self.num_players = 0
+        self.active_player = Player("Player 1", 1)
+        self.q_counter = 0
+        self.curr_question = Questions()
         self.clear_console()
-        self.score_widget.config(text="Score: " + str(0) + ", Tries Remaining: " + str(3), bg="lightgray")
+        self.score_widget.config(text="Score: " + str(0) + ", Tries Remaining: " + str(3), fg="black", bg="lightgray")
         self.unload_score_widget()
         self.unload_entry_field()
         self.unload_scene_widget()
@@ -115,26 +127,42 @@ class Application:
                     self.send_outputln("\"" + self.input + "\" is not a valid number of players.")
                     self.send_output("> ")
                 else:
-                    self.asking_num_players = False
-                    self.start_game()
+                    # self.start_game()
 
-                    # if ( self.num_players == 1 ):
-                    #     self.asking_num_players = False
-                    #     self.start_game()
-                    # elif ( self.num_players > 1 ):
-                    #     self.send_outputln("Multiplayer not yet implemented.")
-                    #     self.send_output("> ")
+                    if ( self.num_players == 1 ):
+                        self.start_game()
+                    elif ( self.num_players > 1 ):
+                        self.send_outputln("Multiplayer not yet implemented.")
+                        self.send_output("> ")
             elif ( not self.asking_num_players ):
                 if (self.input == "start"):
                     self.reset_states()
                     self.player_start_screen()
         elif ( self.in_game ):
-            if ( self.input == "right" ):
-                self.send_outputln("we are in game and this would be a correct answer")
-            elif ( self.input == "game over" ):
-                self.game_over_sequence()
-            elif ( self.input == "win" ):
-                self.win_sequence()
+            if ( self.num_players == 1 ):
+                if ( self.q_counter <= self.DEFAULT_QUESTIONS ):
+                        # if (self.curr_question.trySolution(self.input)):
+                        result = self.curr_question.trySolution(self.input)
+                        self.active_player.update(result, self.curr_question.getPointValue())
+                        self.update_score_widget()
+
+                        if ( self.active_player.getTries() > 0 ):
+                            if ( self.active_player.getTries() == 1 ):
+                                self.score_widget.config(fg="red")
+                            if ( self.q_counter < self.DEFAULT_QUESTIONS ):
+                                if ( result ):
+                                    self.get_next_question()
+                            elif ( self.q_counter >= self.DEFAULT_QUESTIONS ):
+                                self.win_sequence()
+                        elif ( self.active_player.getTries() == 0 ):
+                            self.game_over_sequence()
+
+            # if ( self.input == "right" ):
+            #     self.send_outputln("we are in game and this would be a correct answer")
+            # elif ( self.input == "game over" ):
+            #     self.game_over_sequence()
+            # elif ( self.input == "win" ):
+            #     self.win_sequence()
 
     ''' ------- TITLE SCREEN FUNCTIONS -------- '''
 
@@ -245,6 +273,16 @@ class Application:
         self.clear_console()
         self.enable_entry_field()
 
+        if ( self.num_players == 1 ):
+            self.get_next_question()
+
+    def get_next_question(self):
+        self.clear_console()
+        self.q_counter += 1
+        self.curr_question.getSpecificQuestion(self.q_counter)
+        self.send_outputln(str(self.q_counter) + ". " + self.curr_question.getQuestion())
+
+
     ''' --------------------------------------- '''
 
     ''' ------- GAME RELATED FUNCTIONS -------- '''
@@ -257,6 +295,8 @@ class Application:
         self.load_entry_field()
         self.load_score_widget()
         self.disable_entry_field()
+        self.master.after(0, self.score_widget.config(text=self.det_losers(), fg="white", bg="darkred"))
+        
         self.update_scene(0, "access_d.png")
         self.update_scene(3000, "access_d2.png")
         self.enable_entry_field()
@@ -276,6 +316,36 @@ class Application:
 
         return winners
 
+    def get_losers(self):
+        losers = []
+
+        for i in range(self.num_players):
+            losers.append(i+1)
+
+        return losers
+
+    def det_losers(self):
+
+        res_str = ""
+        if ( self.num_players == 1 ):
+            res_str += "You"
+            #self.send_output("You")
+        elif ( self.num_players > 1 ):
+            loser = self.get_losers()
+            if ( len(loser) == 1 ):
+                res_str += "Player " + str(loser[0])
+                #self.send_output("Player " + str(winner[0]))
+            elif( len(loser) > 1 ):
+                res_str += "Player(s) "
+                #self.send_output("Player(s) ")
+                for i in range(len(loser)-1):
+                     res_str += str(loser[i]) + ", "
+                     #self.send_output(str(winner[i]) + ", ")
+                res_str += "and " + str(loser[len(loser)-1])
+                #self.send_output(str(winner[len(winner)-1]))
+        res_str += " ran out of attempts, system locked!"
+        
+        return res_str
 
     def det_winner(self):
 
@@ -294,7 +364,7 @@ class Application:
                 for i in range(len(winner)-1):
                      res_str += str(winner[i]) + ", "
                      #self.send_output(str(winner[i]) + ", ")
-                res_str += str(winner[len(winner)-1])
+                res_str += "and " + str(winner[len(winner)-1])
                 #self.send_output(str(winner[len(winner)-1]))
         res_str += " won!"
         
@@ -308,7 +378,7 @@ class Application:
         self.in_game = False
         self.clear_console()
 
-        self.master.after(3000, self.score_widget.config(text=self.det_winner()))
+        self.master.after(3000, self.score_widget.config(text=self.det_winner(), fg="white", bg="darkgreen"))
         self.unload_game_interface()
         self.unload_score_widget()
         self.load_scene_widget(0.5, 0.38)
@@ -378,7 +448,7 @@ class Application:
         self.send_outputln("========== BE CAREFUL! ==========")
         self.send_outputln("You have 3 tries to answer all the questions succesfully!  If you run out of attempts, the computer will lock itself and it will be GAME OVER.\n")
         self.send_outputln("\n-------------------------------\n")
-        self.master.after(5000, self.send_outputln("Starting command line...\n"))
+        self.master.after(3000, self.send_outputln("Starting command line...\n"))
         self.ask_num_players()
 
     def ask_num_players(self):
@@ -387,8 +457,6 @@ class Application:
         self.send_outputln("Enter a number below, then either press ENTER or click the \"Submit\" button to submit your response.")
         self.send_output("> ")
         self.enable_entry_field()
-
-
     ''' --------------------------------------- '''
 
 root = Tk()
