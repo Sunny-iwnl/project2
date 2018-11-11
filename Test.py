@@ -20,7 +20,7 @@ class Application:
         ''' ------- Window Element Variables -------- '''
 
         # prepare the text field for the feedback to be presented to the user
-        self.feedback_field = Text(bg="black", foreground="#33FF00", highlightbackground="black", font=("Andale Mono", 14))
+        self.feedback_field = Text(bg="black", foreground="#33FF00", highlightbackground="black", font=("Lucida Console", 14))
 
         #create a frame to house the entry field and submit button
         self.input_frame = Frame(master, bg="lightgray")
