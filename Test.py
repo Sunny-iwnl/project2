@@ -139,6 +139,28 @@ class Application:
                     elif ( self.num_players > 1 ):
                         self.send_outputln("Multiplayer not yet implemented.")
                         self.send_output("> ")
+                        a = self.active_player
+                        b=Player("Player 2",2)
+                        a.setNext(b)
+                        b.setPrev(a)
+                        c=None
+                        tempprime="Player "
+                        for i in range(self.num_players-2):
+                            temp=tempprime+str(i+3)
+                            c=Player(temp,i+3)
+                            b.setNext(c)
+                            c.setPrev(b)
+                            b=c
+                        c.setNext(a)
+                        a.setPrev(b)
+                        tempplayer=a
+                        notagain=True
+                        while notagain:
+                            if (tempplayer.getPlayerNum()==self.num_players):
+                                notagain=False
+                            print(tempplayer.getPlayerNum())
+                            tempplayer=tempplayer.getNext()
+                        
                     # elif ( self.num_players > 1 ):
                     #     i = 1
                     #     while (i <= self.num_players):
@@ -153,6 +175,7 @@ class Application:
                     #         print( temp.getName())
                     #         temp = temp.getNext()
                     #         i+=1
+                    
 
                         
             elif ( not self.asking_num_players ):
