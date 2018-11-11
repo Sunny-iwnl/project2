@@ -1,21 +1,35 @@
 from random import randint
 
 class Player():
-    def __init__(self,name):
+    def __init__(self,name, number):
         self.name = name
+        self.number = number
         self.score = 0
-        self.tries = 0
-        self.next=""
-        self.prev=""
+        self.tries = 3
+        self.next= ""
+        self.prev= ""
 
+    def new_node(self):
+        return Player(None, 0)
 
-    def update(self, correct=True, points):
+    def update(self, correct, points):
         if correct:
             self.score += points
         else:
             self.score -= 5
+            self.tries -= 1
 
-        self.tries += 1
+    def getName(self):
+        return self.name
+
+    def getPlayerNum(self):
+        return self.number
+
+    def getScore(self):
+        return self.score
+
+    def getTries(self):
+        return self.tries
        
     def setNext(self,node):
         self.next=node
@@ -28,6 +42,10 @@ class Player():
     
     def getPrev(self):
         return self.prev
+
+    def addPlayer(self, node):
+        self.setNext(node)
+        node.setPrev(self)
     
     def deletePlayer(self):
         self.prev.setNext(self.next)

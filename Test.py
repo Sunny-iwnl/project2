@@ -35,7 +35,7 @@ class Application:
         #create a frame to house the entry field and submit button
         self.input_frame = Frame(master, bg="lightgray")
         self.entry_field = Entry(text="", relief="groove", highlightbackground="lightgray", disabledbackground="darkgray")
-        self.submit_button = Button(text="Submit", command=lambda: self.submit_input())
+        self.submit_button = Button(text="Submit", command=lambda: self.submit_input(self.entry_field.get().lower()))
         # label widget which keeps track of the global variables 
         self.score_widget = Label(text="Score: " + str(0) + ", Tries Remaining: " + str(3), bg="lightgray")
         self.panel = Label(self.master, bg="black")
@@ -44,7 +44,7 @@ class Application:
 
         ''' ------- "Global" Variables -------- '''
 
-        self.input = ""
+        #self.input = ""
         self.in_game = False
         self.asking_num_players = False
         self.num_players = 0
@@ -56,7 +56,7 @@ class Application:
 
         self.program()
 
-        self.entry_field.bind("<Return>", lambda event: self.submit_input())
+        self.entry_field.bind("<Return>", lambda event: self.submit_input(self.entry_field.get().lower()))
 
     def boot_os_sequence(self):
         self.load_console()
@@ -83,7 +83,7 @@ class Application:
         self.score_widget.config(text="Score: " + str(self.active_player.getScore()) + ", Tries Remaining: " + str(self.active_player.getTries()))
 
     def reset_states(self):
-        self.input = ""
+        # self.input = ""
         self.in_game = False
         self.asking_num_players = False
         self.num_players = 0
@@ -99,14 +99,19 @@ class Application:
         self.master.after(3000, self.send_outputln("Restarting system..."))
         self.unload_console()
 
-    def submit_input(self):
-        self.input = self.entry_field.get().lower()
+    # def submit_input(self):
+    #     self.input = self.entry_field.get().lower()
+    #     self.entry_field.delete(0, END)
+    #     self.entry_field.focus()
+    #     self.check_input()
+
+    def submit_input(self, entry):
         self.entry_field.delete(0, END)
         self.entry_field.focus()
-        self.check_input()
+        self.check_input(entry)
 
-    def check_input(self):
-        if ( self.input == "about" ):
+    def check_input(self, entry):
+        if ( entry == "about" ):
             about = Toplevel(self.master)
             about.geometry("250x250")
             about_text = Label(about, text=self.PROGRAM_TITLE)
@@ -121,10 +126,10 @@ class Application:
         if ( not self.in_game ):
             if ( self.asking_num_players ):
                 try:
-                    self.num_players = int(self.input)
-                    self.send_outputln(self.input)
+                    self.num_players = int(entry)
+                    self.send_outputln(entry)
                 except ValueError:
-                    self.send_outputln("\"" + self.input + "\" is not a valid number of players.")
+                    self.send_outputln("\"" + entry + "\" is not a valid number of players.")
                     self.send_output("> ")
                 else:
                     # self.start_game()
@@ -134,15 +139,31 @@ class Application:
                     elif ( self.num_players > 1 ):
                         self.send_outputln("Multiplayer not yet implemented.")
                         self.send_output("> ")
+                    # elif ( self.num_players > 1 ):
+                    #     i = 1
+                    #     while (i <= self.num_players):
+                    #         new_player = Player("Player " + str(i), i)
+                    #         new_player.setPrev(self.active_player)
+                    #         self.active_player.setNext(new_player)
+                    #         i+=1
+
+                    #     i = 1
+                    #     temp = self.active_player
+                    #     while (i <= self.num_players):
+                    #         print( temp.getName())
+                    #         temp = temp.getNext()
+                    #         i+=1
+
+                        
             elif ( not self.asking_num_players ):
-                if (self.input == "start"):
+                if (entry == "start"):
                     self.reset_states()
                     self.player_start_screen()
         elif ( self.in_game ):
             if ( self.num_players == 1 ):
                 if ( self.q_counter <= self.DEFAULT_QUESTIONS ):
                         # if (self.curr_question.trySolution(self.input)):
-                        result = self.curr_question.trySolution(self.input)
+                        result = self.curr_question.trySolution(entry)
                         self.active_player.update(result, self.curr_question.getPointValue())
                         self.update_score_widget()
 
@@ -156,6 +177,7 @@ class Application:
                                 self.win_sequence()
                         elif ( self.active_player.getTries() == 0 ):
                             self.game_over_sequence()
+
 
             # if ( self.input == "right" ):
             #     self.send_outputln("we are in game and this would be a correct answer")
