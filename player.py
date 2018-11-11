@@ -6,11 +6,8 @@ class Player():
         self.number = number
         self.score = 0
         self.tries = 3
-        self.next= ""
-        self.prev= ""
-
-    def new_node(self):
-        return Player(None, 0)
+        self.next= None
+        self.prev= None
 
     def update(self, correct, points):
         if correct:
