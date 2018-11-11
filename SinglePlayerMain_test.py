@@ -1,3 +1,6 @@
+import unittest
+
+####################### COPIED MAIN BELOW ##########################
 from tkinter import *
 from Questions import Questions
 
@@ -8,9 +11,7 @@ DEF_NUM_QUESTIONS = 9
 DEFAULT_TRIES = 3
 ACTIVE_TRIES = DEFAULT_TRIES
 ACTIVE_QUESTION = 0
-ACTIVE_PLAYER = 0
 ASKING_NUM_PLAYERS = FALSE
-ACTIVE_TURN = 0
 
 # instantiate the main game window
 MASTER = Tk()
@@ -33,7 +34,6 @@ SCORE_WIDGET = Label(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " 
 
 # go ahead and 
 CURRENT_QUESTION = Questions()
-currentpointvalue=Questions.getPointValue()
 
 PLAYERS = []
 NUM_PLAYERS = 0
@@ -66,12 +66,11 @@ def clear_textbox():
 def load_next_question():
 	global ACTIVE_SCORE
 	global ACTIVE_QUESTION
-	
 	global IN_GAME
 
 	clear_textbox()
 	if IN_GAME:
-		ACTIVE_SCORE += CURRENT_QUESTION.getPointValue()
+		ACTIVE_SCORE += 10
 
 		if (ACTIVE_QUESTION < DEF_NUM_QUESTIONS):
 			ACTIVE_QUESTION += 1 
@@ -81,12 +80,11 @@ def load_next_question():
 	if (ACTIVE_QUESTION == DEF_NUM_QUESTIONS):
 		ACTIVE_QUESTION = 0
 
-	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)
-	
+	CURRENT_QUESTION.getSpecificQuestion(ACTIVE_QUESTION+1)	
 
 	send_outputln(str(ACTIVE_QUESTION+1) + ". " + str(CURRENT_QUESTION.getQuestion()))
 
-	SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
+	SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
 	SCORE_WIDGET.update()
 
 def give_strike():
@@ -94,20 +92,18 @@ def give_strike():
 	global ACTIVE_TRIES
 	global IN_GAME
 	global SCORE_WIDGET
-	global ACTIVE_PLAYER
-	global NUM_PLAYERS
 
-	if IN_GAME:
-		ACTIVE_TRIES -= 1
-		ACTIVE_SCORE -= 5
+	ACTIVE_TRIES -= 1
+	ACTIVE_SCORE -= 10
 
-		if ( ACTIVE_TRIES > 1 ):
-			SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
-		elif ( ACTIVE_TRIES == 1):
-			SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
-			SCORE_WIDGET.config(fg="red")
-		elif ( NUM_PLAYERS == 1 and ACTIVE_TRIES == 0 ):
-			SCORE_WIDGET.config(text="Game Over!  Type \"start\" to play again, or \"quit\" to quit.", fg="white", bg="red")
+	if ( ACTIVE_TRIES > 1 ):
+		SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES))
+	elif ( ACTIVE_TRIES == 1):
+		SCORE_WIDGET.config(text="Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES))
+		SCORE_WIDGET.config(fg="red")
+	elif ( ACTIVE_TRIES == 0 ):
+		SCORE_WIDGET.config(text="Game Over!  Type \"start\" to play again, or \"quit\" to quit.", fg="white", bg="red")
+		#IN_GAME = False #### Added Code
 
 	SCORE_WIDGET.update()
 
@@ -157,49 +153,48 @@ def check_input(input):
 	global NUM_PLAYERS
 	global ASKING_NUM_PLAYERS
 	global ACTIVE_SCORE
-	global ACTIVE_TRIES
-	global ACTIVE_PLAYER
-	global ACTIVE_TURN
 
 	if ( input == "quit" ):
 		MASTER.destroy()
-	elif ( ASKING_NUM_PLAYERS and not IN_GAME ):
+	elif ( ASKING_NUM_PLAYERS ):
 		NUM_PLAYERS = int(input)
 
-
 		for i in range(0, NUM_PLAYERS):
-		# slot 1 is their tries, slot 2 is their score, slot 3 is their current question
-			player_state = [0, DEFAULT_TRIES]
+			# slot 1 is their tries, slot 2 is their score, slot 3 is their current question
+			player_state = [0, 0, 0]
 			PLAYERS.append(player_state)
 			print(len(PLAYERS))
 
 		if NUM_PLAYERS == 1: 
 			ASKING_NUM_PLAYERS = False
-			ACTIVE_PLAYER = 1
 			load_next_question()
 			IN_GAME = True
-
 		elif NUM_PLAYERS > 1:
-			send_outputln("Multiplayer not yet implemented.")
+			send_outputln("Multiplayer coming in the final release.")
 
 	elif ( input == "begin" and not IN_GAME ):
 		clear_textbox()
 		send_outputln("How many people are playing?  Type the number below and press ENTER.")
 		ASKING_NUM_PLAYERS = True
 
-	elif ( (ACTIVE_TRIES == 0  or IN_GAME == FALSE) and input == "start"):
+		# and the things to take place whenever the enter button is presssed.
+		# you can actually chain together function calls as seen below.
+		# IN_GAME = True
+		# clear_textbox()
+		# load_next_question()
+	elif ( (ACTIVE_TRIES == 0  or not IN_GAME) and input == "start"):
 		reset_everything()
 	elif ( not CURRENT_QUESTION.trySolution(input) and IN_GAME):
 		give_strike()
-
-		if ( ACTIVE_TRIES > 0 ):
-			load_next_question()
-		
 	elif (CURRENT_QUESTION.trySolution(input) and ACTIVE_QUESTION < DEF_NUM_QUESTIONS and IN_GAME ):
 		load_next_question()
+	if (ACTIVE_SCORE == 70 ):
+		clear_textbox()
+		IN_GAME = False
+		send_outputln("Congrats, you won!  Type \"start\" to play again or \"quit\" to quit.")
+'''-----------------------------------'''
 
-		SCORE_WIDGET.config(text="Player " + str(ACTIVE_PLAYER) + "\'s Turn, " + "Score: " + str(ACTIVE_SCORE) + ", Tries Remaining: " + str(ACTIVE_TRIES), bg="lightgray", fg="black")
-		SCORE_WIDGET.update()
+# where the window is set up and such
 def load_window():
 	global INPUT_FRAME
 	global SCORE_WIDGET
@@ -225,7 +220,7 @@ def load_window():
 	# and the things to take place whenever the enter button is presssed.
 	# you can actually chain together function calls as seen below.
 	ENTRY_FIELD.bind("<Return>", lambda event: [check_input(ENTRY_FIELD.get().lower()), ENTRY_FIELD.delete(0, END), ENTRY_FIELD.focus()])
-
+'''
 def main():
 
 	load_window()
@@ -234,3 +229,87 @@ def main():
 
 
 main()
+'''
+############################### COPIED MAIN ABOVE ##############################
+
+class test_Main(unittest.TestCase):
+
+    # For some reason, the unittest does tests in alphabetical order based on method name
+    
+    def test_1_win(self): # test case 1
+        reset_everything() # in case a different test does not pass, restore inital state
+        
+        check_input("begin") # start game
+        check_input(1) # input one player
+        self.assertTrue(IN_GAME) # check if program is IN_GAME
+
+        # question 1
+        print(ACTIVE_SCORE)
+        check_input("b") # correct answer
+        self.assertEqual(ACTIVE_SCORE, 10)
+        self.assertEqual(ACTIVE_TRIES, 3)
+        
+        # question 2
+        check_input("c") # correct answer
+        self.assertEqual(ACTIVE_SCORE, 20)
+        self.assertEqual(ACTIVE_TRIES, 3)
+
+        # question 3-6
+        check_input("a") # correct answer
+        check_input("melanin") # correct answer
+        check_input("a") # correct answer
+        check_input("a") # correct answer
+
+        # question 7
+        check_input("Kansas") # incorrect answer
+        self.assertEqual(ACTIVE_SCORE, 50)
+        self.assertEqual(ACTIVE_TRIES, 2)
+        check_input("emerald city") # correct answer
+        self.assertEqual(ACTIVE_SCORE, 60)
+        self.assertEqual(ACTIVE_TRIES, 2)
+
+        # question 8
+        check_input("a") # correct answer
+        self.assertEqual(ACTIVE_SCORE, 70)
+        self.assertEqual(ACTIVE_TRIES, 2)
+        self.assertFalse(IN_GAME) # program is no longer in game, player won
+        #self.assert() # test that program displays win screen
+
+        # return to main menu
+        check_input("start")
+        # check that the program is reset
+        self.assertEqual(ACTIVE_SCORE, 0)
+        self.assertEqual(ACTIVE_TRIES, 3)
+        self.assertFalse(IN_GAME)
+        self.assertFalse(ASKING_NUM_PLAYERS)
+
+    def test_2_lose(self): # test case 2
+        reset_everything() # in case a different test does not pass, restore inital state
+        
+        check_input("begin") # start game
+        check_input(1) # input one player
+        self.assertTrue(IN_GAME) # check if program is IN_GAME
+
+        # question 1
+        check_input("a") # incorrect answer x 3
+        self.assertEqual(ACTIVE_SCORE, -10)
+        self.assertEqual(ACTIVE_TRIES, 2)
+        check_input("d")
+        check_input("c")
+        self.assertEqual(ACTIVE_SCORE, -30)
+        self.assertEqual(ACTIVE_TRIES, 0)
+        self.assertFalse(IN_GAME) # program is no longer in game, player lost
+        #self.assert() # test that program displays lose screen
+
+        # return to main menu
+        check_input("start")
+        # check that the program is reset
+        self.assertEqual(ACTIVE_SCORE, 0)
+        self.assertEqual(ACTIVE_TRIES, 3)
+        self.assertFalse(IN_GAME)
+        self.assertFalse(ASKING_NUM_PLAYERS)
+
+        
+
+if __name__ == '__main__':
+    unittest.main()
